@@ -1,19 +1,29 @@
 public class SubTask extends Task{
 
     int parentId;
-    public SubTask(String name, String description, int id, Status status, int parentId) {
-        super(name, description, id, status);
-        setParentId(parentId);
+    public SubTask(String name, String description, Status status) {
+        super(name, description, status);
     }
+
 
     @Override
     public void setStatus(Status status)
     {
         this.status=status;
-        if (TaskManager.tasksList.get(parentId).getStatus()
+    }
+    @Override
+    public String toString()
+    {
+        return "Тип таска: Sub  Название: "+name+" Описание: "+description+ " Статус: "+status +" Является частью Epic-таска "+
+                TaskManager.tasksList.get(parentId).getName()+ "\n";
     }
 
-    private void setParentId(int parentId) {
+    public int getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(int parentId)
+    {
         this.parentId = parentId;
     }
 }
