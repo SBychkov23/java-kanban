@@ -1,3 +1,6 @@
+package model;
+import Service.TaskManager;
+
 public class SubTask extends Task{
 
     int parentId;

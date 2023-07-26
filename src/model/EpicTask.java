@@ -1,9 +1,14 @@
+package model;
+
+
+import Service.TaskManager;
+
 import java.util.HashMap;
 
-public class EpicTask extends Task{
+public class EpicTask extends Task {
 
 
-    HashMap<Integer, SubTask> childSubTasks = new HashMap<>();
+    public HashMap<Integer, SubTask> childSubTasks = new HashMap<>();
     public EpicTask(String name, String description, Status status)
     {
         super(name, description, status);
@@ -35,23 +40,7 @@ public class EpicTask extends Task{
     @Override
     public String toString()
     {
-        return "Тип таска: Epic  Название: "+name+" Описание: "+description+ " Статус: "+status +" Sub-таски: "+printSubs()+"\n";
+        return "Тип таска: Epic  Название: "+name+" Описание: "+description+ " Статус: "+status +" Sub-таски: "+ TaskManager.printSubs(id)+"\n";
     }
 
-    public String printSubs()
-    {
-        String line = "";
-        for(SubTask sub: childSubTasks.values())
-        line+="\n"+sub.toString();
-        return line;
-    }
-
-    public void addToSubList (int SubID, SubTask sub)
-    {
-        childSubTasks.put(SubID, sub);
-    }
-    public void removeFromSubList (int SubID)
-    {
-        childSubTasks.remove(SubID);
-    }
 }

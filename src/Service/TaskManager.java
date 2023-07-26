@@ -1,3 +1,10 @@
+package Service;
+
+import model.Status;
+import model.SubTask;
+import model.Task;
+import model.EpicTask;
+
 import java.util.HashMap;
 
 public class TaskManager {
@@ -21,6 +28,24 @@ public class TaskManager {
     }
     public void removeAllTasks() {
         tasksList.clear();
+    }
+
+    public static String printSubs(int EpicID)
+    {
+        String line = "";
+        for(SubTask sub: ((EpicTask) tasksList.get(EpicID)).childSubTasks.values())
+            line+="\n"+sub.toString();
+        return line;
+    }
+
+    public void addToSubList (int EpicID,  SubTask sub)
+    {
+
+        ((EpicTask) tasksList.get(EpicID)).childSubTasks.put(sub.getId(), sub);
+    }
+    public void removeFromSubList (int EpicID, int SubID)
+    {
+        ((EpicTask) tasksList.get(EpicID)).childSubTasks.remove(SubID);
     }
     public void checkForTaskConnectionsToDelete(int taskId) //метод для корректной очистки в случае удаления эпик или саб таска
     {
@@ -80,7 +105,7 @@ public class TaskManager {
             newSubTask.setId(id);
             newSubTask.setParentId(parentID);
             tasksList.put(id, newSubTask);
-            ((EpicTask) tasksList.get(parentID)).addToSubList(id, newSubTask);
+             addToSubList(parentID, newSubTask);
             //приводим элемент мапы взятый по parentID
             // к типу EpicTask т.е от него ожидается что он будет Эпиком
         }

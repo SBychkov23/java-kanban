@@ -1,3 +1,8 @@
+import Service.TaskManager;
+import model.Status;
+import model.SubTask;
+import model.Task;
+import model.EpicTask;
 
 public class Main {
     public static void main(String[] args) {
@@ -17,7 +22,6 @@ public class Main {
         System.out.println(manager.getTasksList());
         manager.removeAllTasks();
         System.out.println(manager.getTasksList());
-
 
     }
 }
