@@ -1,4 +1,4 @@
-import Service.TaskManager;
+import service.TaskManager;
 import model.Status;
 import model.SubTask;
 import model.Task;
@@ -17,7 +17,6 @@ public class Main {
         manager.setNewSubTask(sub1, epic1.getId());
         manager.setNewSubTask(sub2, epic1.getId());
         System.out.println(manager.getTasksList());
-        manager.getTaskByID(1).setStatus(Status.DONE);
         manager.removeTaskByID(3);
         System.out.println(manager.getTasksList());
         manager.removeAllTasks();

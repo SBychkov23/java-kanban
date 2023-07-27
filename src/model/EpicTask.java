@@ -1,9 +1,10 @@
 package model;
 
 
-import Service.TaskManager;
+import service.TaskManager;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class EpicTask extends Task {
 
@@ -17,25 +18,8 @@ public class EpicTask extends Task {
    @Override
     public Status getStatus()
     {
-        int statusDone=0;
-        int statusNew=0;
-        for (SubTask sub: childSubTasks.values()) {
-            if (sub.getStatus().equals(Status.DONE))
-                statusDone++;
-            else if (sub.getStatus().equals(Status.NEW))
-                statusNew++;
-        }
-        if (statusDone==childSubTasks.size()){
-            setStatus(Status.DONE);
-            return status;
-        } else if (statusNew==childSubTasks.size()) {
-            setStatus(Status.NEW);
-            return status;
-        }
-        else {
-            setStatus(Status.IN_PROGRESS);
-            return status;
-        }
+                    return status;
+
     }
     @Override
     public String toString()
@@ -43,4 +27,17 @@ public class EpicTask extends Task {
         return "Тип таска: Epic  Название: "+name+" Описание: "+description+ " Статус: "+status +" Sub-таски: "+ TaskManager.printSubs(id)+"\n";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        EpicTask epicTask = (EpicTask) o;
+        return Objects.equals(childSubTasks, epicTask.childSubTasks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), childSubTasks);
+    }
 }

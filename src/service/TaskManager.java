@@ -1,4 +1,4 @@
-package Service;
+package service;
 
 import model.Status;
 import model.SubTask;
@@ -63,6 +63,23 @@ public class TaskManager {
         else if(tasksList.get(taskId) instanceof SubTask)
             ((EpicTask) tasksList.get((((SubTask) tasksList.get(taskId)).getParentId()))).childSubTasks.remove(taskId);// Здесь удаляем сабтакс из эпика
 
+    }
+    public static void updateEpicStatus ( int EpicID) {
+        int statusDone = 0;
+        int statusNew = 0;
+        for (SubTask sub : ((EpicTask) tasksList.get(EpicID)).childSubTasks.values()) {
+            if (sub.getStatus().equals(Status.DONE))
+                statusDone++;
+            else if (sub.getStatus().equals(Status.NEW))
+                statusNew++;
+        }
+        if (statusDone == ((EpicTask) tasksList.get(EpicID)).childSubTasks.size()) {
+            ((EpicTask) tasksList.get(EpicID)).setStatus(Status.DONE);
+        } else if (statusNew == ((EpicTask) tasksList.get(EpicID)).childSubTasks.size()) {
+            ((EpicTask) tasksList.get(EpicID)).setStatus(Status.NEW);
+        } else {
+            ((EpicTask) tasksList.get(EpicID)).setStatus(Status.IN_PROGRESS);
+        }
     }
 
     public int getNewID() {
