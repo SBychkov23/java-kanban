@@ -1,5 +1,5 @@
 package model;
-import service.TaskManager;
+import service.InMemoryTaskManager;
 
 import java.util.Objects;
 
@@ -15,13 +15,13 @@ public class SubTask extends Task{
     public void setStatus(Status status)
     {
         this.status=status;
-        TaskManager.updateEpicStatus(parentId);
+        InMemoryTaskManager.updateEpicStatus(parentId);
     }
     @Override
     public String toString()
     {
         return "Тип таска: Sub  Название: "+name+" Описание: "+description+ " Статус: "+status +" Является частью Epic-таска "+
-                TaskManager.tasksList.get(parentId).getName()+ "\n";
+                InMemoryTaskManager.tasksList.get(parentId).getName()+ "\n";
     }
 
     public int getParentId() {

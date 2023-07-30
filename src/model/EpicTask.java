@@ -1,7 +1,7 @@
 package model;
 
 
-import service.TaskManager;
+import service.InMemoryTaskManager;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -24,7 +24,7 @@ public class EpicTask extends Task {
     @Override
     public String toString()
     {
-        return "Тип таска: Epic  Название: "+name+" Описание: "+description+ " Статус: "+status +" Sub-таски: "+ TaskManager.printSubs(id)+"\n";
+        return "Тип таска: Epic  Название: "+name+" Описание: "+description+ " Статус: "+status +" Sub-таски: "+ InMemoryTaskManager.printSubs(id)+"\n";
     }
 
     @Override

@@ -1,4 +1,4 @@
-import service.TaskManager;
+import service.InMemoryTaskManager;
 import model.Status;
 import model.SubTask;
 import model.Task;
@@ -7,7 +7,7 @@ import model.EpicTask;
 public class Main {
     public static void main(String[] args) {
 
-        TaskManager manager = new TaskManager();
+        InMemoryTaskManager manager = new InMemoryTaskManager();
         Task task = new Task("Первая задача", "Проверить работу таска", Status.NEW);
         EpicTask epic1 = new EpicTask("Первая эпик задача", "Проверить работу эпика", Status.NEW);
         SubTask sub1 = new SubTask("Первая подзадача", "Проверить работу саба", Status.NEW);
@@ -19,8 +19,12 @@ public class Main {
         System.out.println(manager.getTasksList());
         manager.removeTaskByID(3);
         System.out.println(manager.getTasksList());
-        manager.removeAllTasks();
-        System.out.println(manager.getTasksList());
+
+        System.out.println(manager.getTaskStatus(1));
+        Task ii = manager.getTaskByID(4);
+        Task i2 = manager.getTaskByID(4);
+        Task i3 = manager.getTaskByID(4);
+        System.out.println(manager.historyManager.getHistory());
 
     }
 }
