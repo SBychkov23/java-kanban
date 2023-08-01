@@ -5,21 +5,19 @@ import java.util.Objects;
 
 public class SubTask extends Task{
 
-    int parentId;
+    private int parentId;
     public SubTask(String name, String description, Status status) {
         super(name, description, status);
     }
 
 
     @Override
-    public void setStatus(Status status)
-    {
+    public void setStatus(Status status){
         this.status=status;
         InMemoryTaskManager.updateEpicStatus(parentId);
     }
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Тип таска: Sub  Название: "+name+" Описание: "+description+ " Статус: "+status +" Является частью Epic-таска "+
                 InMemoryTaskManager.tasksList.get(parentId).getName()+ "\n";
     }
@@ -28,8 +26,7 @@ public class SubTask extends Task{
         return parentId;
     }
 
-    public void setParentId(int parentId)
-    {
+    public void setParentId(int parentId){
         this.parentId = parentId;
     }
 

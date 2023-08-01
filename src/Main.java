@@ -17,13 +17,11 @@ public class Main {
         manager.setNewSubTask(sub1, epic1.getId());
         manager.setNewSubTask(sub2, epic1.getId());
         System.out.println(manager.getTasksList());
-        manager.removeTaskByID(3);
         System.out.println(manager.getTasksList());
-
         System.out.println(manager.getTaskStatus(1));
         Task ii = manager.getTaskByID(4);
         Task i2 = manager.getTaskByID(4);
-        Task i3 = manager.getTaskByID(4);
+        Task i3 = manager.getTaskByID(3);
         System.out.println(manager.historyManager.getHistory());
 
     }

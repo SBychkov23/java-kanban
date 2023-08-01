@@ -9,21 +9,17 @@ import java.util.Objects;
 public class EpicTask extends Task {
 
 
-    public HashMap<Integer, SubTask> childSubTasks = new HashMap<>();
-    public EpicTask(String name, String description, Status status)
-    {
+    private HashMap<Integer, SubTask> childSubTasks = new HashMap<>();
+    public EpicTask(String name, String description, Status status){
         super(name, description, status);
     }
 
    @Override
-    public Status getStatus()
-    {
+    public Status getStatus() {
                     return status;
-
     }
     @Override
-    public String toString()
-    {
+    public String toString(){
         return "Тип таска: Epic  Название: "+name+" Описание: "+description+ " Статус: "+status +" Sub-таски: "+ InMemoryTaskManager.printSubs(id)+"\n";
     }
 
@@ -39,5 +35,9 @@ public class EpicTask extends Task {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), childSubTasks);
+    }
+
+    public HashMap<Integer, SubTask> getSubtasksList () {
+        return childSubTasks;
     }
 }

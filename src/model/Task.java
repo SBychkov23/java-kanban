@@ -3,10 +3,10 @@ package model;
 import java.util.Objects;
 
 public class Task {
-    String name;
-    String description;
-    int id;
-    Status status;
+    protected String name;
+    protected String description;
+    protected int id;
+    protected Status status;
 
     public Task(String name, String description, Status status) {
         this.name = name;
@@ -39,8 +39,7 @@ public class Task {
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Тип таска: Обычный  Название: "+name+" Описание: "+description+ " Статус: "+status+"\n";
     }
 
