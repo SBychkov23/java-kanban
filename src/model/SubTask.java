@@ -19,7 +19,7 @@ public class SubTask extends Task{
     @Override
     public String toString() {
         return "Тип таска: Sub  Название: "+name+" Описание: "+description+ " Статус: "+status +" Является частью Epic-таска "+
-                InMemoryTaskManager.tasksList.get(parentId).getName()+ "\n";
+                InMemoryTaskManager.tasksMap.get(parentId).getName()+ "\n";
     }
 
     public int getParentId() {

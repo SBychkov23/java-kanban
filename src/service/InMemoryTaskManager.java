@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class InMemoryTaskManager extends Managers implements TaskManager {
 
 
-    public static HashMap<Integer, Task> tasksList = new HashMap<>();
+    public static HashMap<Integer, Task> tasksMap = new HashMap<>();
     private static int IdCount;
     public HistoryManager historyManager = getDefaultHistory();
 
@@ -22,7 +22,7 @@ public class InMemoryTaskManager extends Managers implements TaskManager {
 
     public static String printSubs(int EpicID) {
         String line = "";
-        for (SubTask sub : ((EpicTask) tasksList.get(EpicID)).getSubtasksList().values())
+        for (SubTask sub : ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().values())
             line += "\n" + sub.toString();
         return line;
     }
@@ -30,58 +30,58 @@ public class InMemoryTaskManager extends Managers implements TaskManager {
     public static void updateEpicStatus(int EpicID) {
         int statusDone = 0;
         int statusNew = 0;
-        for (SubTask sub : ((EpicTask) tasksList.get(EpicID)).getSubtasksList().values()) {
+        for (SubTask sub : ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().values()) {
             if (sub.getStatus().equals(Status.DONE)) statusDone++;
             else if (sub.getStatus().equals(Status.NEW)) statusNew++;
         }
-        if (statusDone == ((EpicTask) tasksList.get(EpicID)).getSubtasksList().size()) {
-            tasksList.get(EpicID).setStatus(Status.DONE);
-        } else if (statusNew == ((EpicTask) tasksList.get(EpicID)).getSubtasksList().size()) {
-            tasksList.get(EpicID).setStatus(Status.NEW);
+        if (statusDone == ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().size()) {
+            tasksMap.get(EpicID).setStatus(Status.DONE);
+        } else if (statusNew == ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().size()) {
+            tasksMap.get(EpicID).setStatus(Status.NEW);
         } else {
-            tasksList.get(EpicID).setStatus(Status.IN_PROGRESS);
+            tasksMap.get(EpicID).setStatus(Status.IN_PROGRESS);
         }
     }
 
     @Override
     public void removeTaskByID(int taskId) {
         checkForTaskConnectionsToDelete(taskId);
-        tasksList.remove(taskId);
+        tasksMap.remove(taskId);
     }
 
     @Override
     public void removeAllTasks() {
-        tasksList.clear();
+        tasksMap.clear();
     }
 
     @Override
     public void addToSubList(int EpicID, SubTask sub) {
-        ((EpicTask) tasksList.get(EpicID)).getSubtasksList().put(sub.getId(), sub);
+        ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().put(sub.getId(), sub);
     }
 
     @Override
     public void removeFromSubList(int EpicID, int SubID) {
-        ((EpicTask) tasksList.get(EpicID)).getSubtasksList().remove(SubID);
+        ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().remove(SubID);
     }
 
     @Override
     public void checkForTaskConnectionsToDelete(int taskId) //метод для корректной очистки в случае удаления эпик или саб таска
     {
-        if (tasksList.get(taskId) instanceof EpicTask) {
-            for (Task task : tasksList.values()) {
-                for (SubTask sub : ((EpicTask) tasksList.get(taskId)).getSubtasksList().values()) {
-                    if (task.equals(sub)) tasksList.remove(sub.getId());
+        if (tasksMap.get(taskId) instanceof EpicTask) {
+            for (Task task : tasksMap.values()) {
+                for (SubTask sub : ((EpicTask) tasksMap.get(taskId)).getSubtasksMap().values()) {
+                    if (task.equals(sub)) tasksMap.remove(sub.getId());
                 }
             }
-        } else if (tasksList.get(taskId) instanceof SubTask)
-            ((EpicTask) tasksList.get((((SubTask) tasksList.get(taskId)).getParentId()))).getSubtasksList().remove(taskId);// Здесь удаляем сабтакс из эпика
+        } else if (tasksMap.get(taskId) instanceof SubTask)
+            ((EpicTask) tasksMap.get((((SubTask) tasksMap.get(taskId)).getParentId()))).getSubtasksMap().remove(taskId);// Здесь удаляем сабтакс из эпика
 
     }
     ///////////////////////////////////////////////////////////////////////////////GET METHODS GROUP
 
     @Override
     public HashMap<Integer, Task> getTasksList() {
-        return tasksList;
+        return tasksMap;
     }
 
     @Override
@@ -92,20 +92,20 @@ public class InMemoryTaskManager extends Managers implements TaskManager {
 
     @Override
     public Status getTaskStatus(int taskID) {
-        historyManager.addToHistory(tasksList.get(taskID));
-        return tasksList.get(taskID).getStatus();
+        historyManager.addToHistory(tasksMap.get(taskID));
+        return tasksMap.get(taskID).getStatus();
     }
 
     @Override
     public Task getTaskByID(int taskID) {
-        historyManager.addToHistory(tasksList.get(taskID));
-        return tasksList.get(taskID);
+        historyManager.addToHistory(tasksMap.get(taskID));
+        return tasksMap.get(taskID);
     }
 
     ///////////////////////////////////////////////////////////////////////////////SET METHODS GROUP
     @Override
     public void setNewTaskStatus(int taskId, Status status) {
-        tasksList.get(taskId).setStatus(status);
+        tasksMap.get(taskId).setStatus(status);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class InMemoryTaskManager extends Managers implements TaskManager {
     {
         int id = getNewID();
         newTask.setId(id);
-        tasksList.put(id, newTask);
+        tasksMap.put(id, newTask);
     }
 
     @Override
@@ -121,17 +121,17 @@ public class InMemoryTaskManager extends Managers implements TaskManager {
     {
         int id = getNewID();
         newEpicTask.setId(id);
-        tasksList.put(id, newEpicTask);
+        tasksMap.put(id, newEpicTask);
     }
 
     @Override
     public void setNewSubTask(SubTask newSubTask, int parentID)//добавление нового саб Таска
     {
-        if (tasksList.get(parentID) instanceof EpicTask) {
+        if (tasksMap.get(parentID) instanceof EpicTask) {
             int id = getNewID();
             newSubTask.setId(id);
             newSubTask.setParentId(parentID);
-            tasksList.put(id, newSubTask);
+            tasksMap.put(id, newSubTask);
             addToSubList(parentID, newSubTask);
             //приводим элемент мапы взятый по parentID
             // к типу EpicTask т.е от него ожидается что он будет Эпиком

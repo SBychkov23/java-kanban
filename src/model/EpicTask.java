@@ -37,7 +37,7 @@ public class EpicTask extends Task {
         return Objects.hash(super.hashCode(), childSubTasks);
     }
 
-    public HashMap<Integer, SubTask> getSubtasksList () {
+    public HashMap<Integer, SubTask> getSubtasksMap () {
         return childSubTasks;
     }
 }

@@ -13,9 +13,9 @@ public class InMemoryHistoryManager implements HistoryManager {
     private CustomLinkedList<Task> taskHistory = new CustomLinkedList<>();
     HashMap<Integer, Node<Task>> historyHash = new HashMap<>();
 
-    public class CustomLinkedList<T> {
-        public Node<T> head;
-        public Node<T> tail;
+    private class CustomLinkedList<T> {
+        private Node<T> head;
+        private Node<T> tail;
         private int size = 0;
         public CustomLinkedList()
         {
@@ -64,7 +64,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             }
             return history;
         };
-        private void removeNode(Node<T> task) {
+        public void removeNode(Node<T> task) {
             if (taskHistory.size==2) {
                 if (task == head){
                     tail.prev = null;
@@ -107,40 +107,16 @@ public class InMemoryHistoryManager implements HistoryManager {
 
         };
     }
-    class Node <T> {
-
-        public T data;
-        public Node<T> next;
-        public Node<T> prev;
-
-        public Node(Node<T> prev, T data, Node<T> next) {
-            this.data = data;
-            this.next = next;
-            this.prev = prev;
-        }
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Node<?> node = (Node<?>) o;
-            return Objects.equals(data, node.data) && Objects.equals(next, node.next) && Objects.equals(prev, node.prev);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(data, next, prev);
-        }
-    }
 
     @Override
     public void remove(int id) {
-        if (historyHash.containsKey(id)) {
+        if (!historyHash.get(id).equals(null)) {
             if (historyHash.get(id).data instanceof EpicTask) {
                 EpicTask epic = (EpicTask) historyHash.get(id).data;
                 taskHistory.removeNode(historyHash.get(id));
                 historyHash.remove(id);
                 taskHistory.size--;
-                for (SubTask sub : epic.getSubtasksList().values()) {
+                for (SubTask sub : epic.getSubtasksMap().values()) {
                     if (historyHash.containsKey(sub.getId())) {
                         taskHistory.removeNode(historyHash.get(sub.getId()));
                         historyHash.remove(sub.getId());
