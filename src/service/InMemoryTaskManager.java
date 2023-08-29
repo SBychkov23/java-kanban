@@ -7,12 +7,16 @@ import model.EpicTask;
 
 import java.util.HashMap;
 
-public class InMemoryTaskManager extends Managers implements TaskManager {
+public class InMemoryTaskManager implements TaskManager {
 
 
     public static HashMap<Integer, Task> tasksMap = new HashMap<>();
     private static int IdCount;
     public HistoryManager historyManager = getDefaultHistory();
+
+    public static HistoryManager getDefaultHistory(){
+        return new InMemoryHistoryManager();
+    }
 
 
     ///////////////////////////////////////////////////////////////////////////////FUNCTIONAL METHODS GROUP
