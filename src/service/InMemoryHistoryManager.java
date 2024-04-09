@@ -53,7 +53,7 @@ public class InMemoryHistoryManager implements HistoryManager {
                 tail= new Node<>(oldTail, task, null);
                 oldTail.next=tail;
             }
-                size++;// Реализуйте метод
+                size++;
         };
         public ArrayList<Task> getTasks(){
             ArrayList<Task> history = new ArrayList<>();
