@@ -18,11 +18,17 @@ public class SubTask extends Task{
     }
     @Override
     public String toString() {
-        return "Тип таска: Sub  Название: "+name+" Описание: "+description+ " Статус: "+status +" Является частью Epic-таска "+
-                InMemoryTaskManager.tasksMap.get(parentId).getName()+ "\n";
+        return String.format("%d,%s,%s,%s,%s,%d", id, this.getClass().getSimpleName(), name, status,  description, parentId); //id,type,name,status,description, epic
     }
 
-    public int getParentId() {
+  /*  @Override
+    public String toString() {
+        return "Тип таска: Sub  Название: "+name+" Описание: "+description+ " Статус: "+status +" Является частью Epic-таска "+
+                InMemoryTaskManager.tasksMap.get(parentId).getName()+ "\n";
+    } старая реализация toString
+   */
+
+public int getParentId() {
         return parentId;
     }
 

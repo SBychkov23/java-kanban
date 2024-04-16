@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class InMemoryTaskManager implements TaskManager {
 
 
-    public static HashMap<Integer, Task> tasksMap = new HashMap<>();
+    public static   HashMap<Integer, Task> tasksMap = new HashMap<>();
     private static int IdCount;
     public HistoryManager historyManager = getDefaultHistory();
 
@@ -45,6 +45,17 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             tasksMap.get(EpicID).setStatus(Status.IN_PROGRESS);
         }
+    }
+
+    @Override
+    public int getLastID() {
+        return IdCount;
+    }
+
+    @Override
+    public void updateLastID(int ID) {
+        if (IdCount<ID)
+            IdCount=ID;
     }
 
     @Override
@@ -139,6 +150,6 @@ public class InMemoryTaskManager implements TaskManager {
             addToSubList(parentID, newSubTask);
             //приводим элемент мапы взятый по parentID
             // к типу EpicTask т.е от него ожидается что он будет Эпиком
-        } else System.out.println("Передан не верный тип родителя, ожидался EpicTask");
+        } else System.out.println("Передан не верный тип родителя, ожидался EpicTask или родитель не объявлен");
     }
 }

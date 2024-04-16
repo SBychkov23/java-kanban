@@ -18,10 +18,6 @@ public class EpicTask extends Task {
     public Status getStatus() {
                     return status;
     }
-    @Override
-    public String toString(){
-        return "Тип таска: Epic  Название: "+name+" Описание: "+description+ " Статус: "+status +" Sub-таски: "+ InMemoryTaskManager.printSubs(id)+"\n";
-    }
 
     @Override
     public boolean equals(Object o) {

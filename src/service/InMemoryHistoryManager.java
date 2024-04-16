@@ -109,8 +109,9 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void remove(int id) {
-        if (!historyHash.get(id).equals(null)) {
+    public void remove(int id) throws NullPointerException {
+
+        try{
             if (historyHash.get(id).data instanceof EpicTask) {
                 EpicTask epic = (EpicTask) historyHash.get(id).data;
                 taskHistory.removeNode(historyHash.get(id));
@@ -129,7 +130,10 @@ public class InMemoryHistoryManager implements HistoryManager {
                 taskHistory.size--;
             }
         }
-        else System.out.println("Такого таска нет в истории");
+        catch (NullPointerException e)
+        {
+            System.out.println("Такого таска нет в истории");
+        }
     }
 
     @Override
