@@ -9,8 +9,7 @@ import java.util.HashMap;
 
 public interface TaskManager {
 
-    public HashMap<Integer, Task> getTasksList() ;
-
+    public HashMap<Integer, Task> getTasksList();
     public void removeTaskByID(int taskId) ;
 
 

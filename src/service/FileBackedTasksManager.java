@@ -4,15 +4,12 @@ import model.*;
 import Exceptions.*;
 import java.nio.charset.*;
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.nio.file.*;
-
 public class FileBackedTasksManager extends InMemoryTaskManager{
 
     private static final String TITTLE_LINE = "id,type,name,status,description,epic";
@@ -68,7 +65,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
     }
     private static List<String> readTasksFromFile(File filename) { //функционал readTasksFromFile намеренно отделён от метода loadFromFile для будущего переиспользования метода
         List <String> ListOFTasks = new ArrayList<String>();
-        try (BufferedReader br =  new BufferedReader(new FileReader(filename, StandardCharsets.UTF_8)) )
+        try (BufferedReader br =  Files.newBufferedReader(Paths.get(filename.toURI()), StandardCharsets.UTF_8))
         {
             while (br.ready()) {
                 String line = br.readLine();
@@ -95,7 +92,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             e.printStackTrace();
         }
 
-        try (FileWriter fl = new FileWriter(TaskManagerFile, StandardCharsets.UTF_8) )
+        try ( BufferedWriter fl = Files.newBufferedWriter(Paths.get(TaskManagerFile.toURI()), StandardCharsets.UTF_8))
         {
             fl.write(TITTLE_LINE+"\n");
             for (String line: readTasksFromRAM())
@@ -141,11 +138,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             System.out.println(e.getMessage());
         }
 
-    }
-
-
-    public  HashMap<Integer, Task> getTasksList() {
-        return super.getTasksList();
     }
 }
 
