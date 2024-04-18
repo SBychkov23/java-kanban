@@ -40,7 +40,8 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Тип таска: Обычный  Название: "+name+" Описание: "+description+ " Статус: "+status+"\n";
+        return String.format("%d,%s,%s,%s,%s", id, this.getClass().getSimpleName(),  name, status, description); //id,type,name,status,description  -пример ожидаемого заполнения
+                //"Тип таска: Обычный  Название: "+name+" Описание: "+description+ " Статус: "+status+"\n";
     }
 
     @Override

@@ -9,8 +9,7 @@ import java.util.HashMap;
 
 public interface TaskManager {
 
-    public HashMap<Integer, Task> getTasksList() ;
-
+    public HashMap<Integer, Task> getTasksList();
     public void removeTaskByID(int taskId) ;
 
 
@@ -35,6 +34,11 @@ public interface TaskManager {
     public void setNewTaskStatus(int taskId, Status status) ;
 
     public Task getTaskByID(int taskID) ;
+
+    public int getLastID();// получение последнего присвоенного ID
+
+    public void updateLastID(int ID); // обновление счётчика ID в случаях работы с сохранёнными тасками
+
 
 
     public void setNewTask(Task newTask);//добавление нового Таска

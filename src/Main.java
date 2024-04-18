@@ -6,7 +6,20 @@ import java.io.File;
 public class Main {
     public static void main(String[] args) {
 
-        TaskManagerUnitTesting Test1 = new TaskManagerUnitTesting();
+       // TaskManagerUnitTesting Test1 = new TaskManagerUnitTesting();
+
+
+    }
+
+    public static boolean isPalindromeLine(String str) {
+        StringBuilder a = new StringBuilder(str.toLowerCase());
+        while (a.indexOf(" ")>=0)
+            a.deleteCharAt(a.indexOf(" "));
+        StringBuilder b = new StringBuilder(a.reverse());
+        b.reverse();
+        System.out.println(a+"   "+ b);
+
+        return a.toString().equals(b.toString());
 
     }
 }
