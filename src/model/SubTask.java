@@ -6,8 +6,8 @@ import java.util.Objects;
 public class SubTask extends Task{
 
     private int parentId;
-    public SubTask(String name, String description, Status status) {
-        super(name, description, status);
+    public SubTask(String name, String description, Status status, int durationInMinutes ) {
+        super(name, description, status, durationInMinutes);
     }
 
 
@@ -16,19 +16,14 @@ public class SubTask extends Task{
         this.status=status;
         InMemoryTaskManager.updateEpicStatus(parentId);
     }
+
     @Override
     public String toString() {
-        return String.format("%d,%s,%s,%s,%s,%d", id, this.getClass().getSimpleName(), name, status,  description, parentId); //id,type,name,status,description, epic
+        return super.toString()+String.format(",%d",  parentId); //id,type,name,status,description, start time, duration, epicID
     }
 
-  /*  @Override
-    public String toString() {
-        return "Тип таска: Sub  Название: "+name+" Описание: "+description+ " Статус: "+status +" Является частью Epic-таска "+
-                InMemoryTaskManager.tasksMap.get(parentId).getName()+ "\n";
-    } старая реализация toString
-   */
 
-public int getParentId() {
+    public int getParentId() {
         return parentId;
     }
 

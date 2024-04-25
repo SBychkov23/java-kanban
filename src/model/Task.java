@@ -1,18 +1,46 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-public class Task {
+public class Task  {
     protected String name;
     protected String description;
     protected int id;
     protected Status status;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
-    public Task(String name, String description, Status status) {
+    public final static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
+
+
+    protected Task() {
+    }
+
+    public Task(String name, String description, Status status, int DurationInMinutes) {
         this.name = name;
         this.description = description;
         this.status = status;
+        duration = Duration.ofMinutes(DurationInMinutes);
+        startTime = LocalDateTime.now();
     }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public int getDurationMinutes() {
+        return (int)duration.toMinutes();
+    }
+
+    public LocalDateTime getEndTime()
+    {
+        return  startTime.plus(duration);
+    }
+
+
 
     public String getName() {
         return name;
@@ -34,14 +62,22 @@ public class Task {
         this.status = status;
     }
 
+    public void setDuration(int durationOfMinutes) { //в минутах
+        this.duration = Duration.ofMinutes(durationOfMinutes);
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime =LocalDateTime.parse(startTime, Task.timeFormat);
+    }
+
     public void setId(int id) {
         this.id = id;
     }
 
     @Override
     public String toString() {
-        return String.format("%d,%s,%s,%s,%s", id, this.getClass().getSimpleName(),  name, status, description); //id,type,name,status,description  -пример ожидаемого заполнения
-                //"Тип таска: Обычный  Название: "+name+" Описание: "+description+ " Статус: "+status+"\n";
+        return String.format("%d,%s,%s,%s,%s,%s,%d", id, this.getClass().getSimpleName(),  name, status, description, startTime.format(timeFormat), getDurationMinutes()); //id,type,name,status,description, start time, duration  -пример ожидаемого заполнения
+
     }
 
     @Override

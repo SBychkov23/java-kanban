@@ -153,4 +153,10 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
 
     }
+
+    @Override
+    public void clear() {
+        historyHash.clear();
+        taskHistory = new CustomLinkedList<>();
+    }
 }
