@@ -7,14 +7,13 @@ import model.*;
 import java.io.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.nio.file.*;
 
 public class TaskManagerUnitTesting {
 
-    private InMemoryTaskManager TestManager = new InMemoryTaskManager();// экземпляр тестового менеджера
+    InMemoryTaskManager TestManager = new InMemoryTaskManager();// экземпляр тестового менеджера
     ///Создание тестовых тасков:
     Task task1 = new Task("Обычная задача1", "Проверить создание задачи", Status.NEW, 60);
     Task task2 = new Task("Обычная задача2", "Проверить создание задачи", Status.NEW, 60);
@@ -29,31 +28,43 @@ public class TaskManagerUnitTesting {
 
 
     @Test
-    public void ManagerFillTest() throws NotEpicTaskException, IOException {
+    public void SetTimeAndFillAndRemoveTaskManagerTest() throws NotEpicTaskException, IOException, TimeCrossException {
         //заполнение тестового менджера:
+        InMemoryTaskManager TestManager1 = new InMemoryTaskManager();// экземпляр тестового менеджера
+        ///Создание тестовых тасков:
+        TestManager.removeAllTasks();
         task1.setStartTime("00:00 12.12.2011");
-        TestManager.setNewTask(task1);
+        TestManager1.setNewTask(task1);
+        task2.setStartTime("00:00 12.06.2012");
+        TestManager1.addTask(TestManager1.getNewID(),task2);
         epic1.setStartTime("00:00 12.12.2012");
         sub1.setStartTime("00:00 12.12.2014");
         epic2.setStartTime("00:00 12.12.2015");
         sub2.setStartTime("00:00 12.12.2016");
-        TestManager.setNewEpicTask(epic1);
-        TestManager.setNewSubTask(sub1, epic1.getId());
-        TestManager.setNewEpicTask(epic2);
-        TestManager.setNewSubTask(sub2, epic2.getId());
+        TestManager1.setNewEpicTask(epic1);
+        TestManager1.setNewSubTask(sub1, epic1.getId());
+        TestManager1.setNewEpicTask(epic2);
+        TestManager1.setNewSubTask(sub2, epic2.getId());
+        TestManager1.removeTaskByID(epic1.getId());
+        Assert.assertFalse(TestManager1.getTasksList().containsKey(epic1.getId()));
+        Assert.assertFalse(TestManager1.getTasksList().containsKey(sub1.getId()));
+        TestManager1.removeTaskByID(sub2.getId());
+        Assert.assertFalse(TestManager1.getTasksList().containsKey(sub2.getId()));
         sub3.setStartTime("00:00 12.12.2017");
-        TestManager.setNewSubTask(sub3, epic2.getId());
+        TestManager1.setNewSubTask(sub3, epic2.getId());
+        TestManager1.removeAllTasks();
+        Assert.assertTrue(TestManager1.getTasksList().isEmpty());
 
     }
     @Test
-    public void TaskToStringTests() {
+    public void TaskToStringPrintTest() {
         System.out.println("id,type,name,status,description,start time, duration, epic");
         for (Task task: TestManager.getTasksList().values())
        System.out.println(task);
     }
 
     @Test
-    public void HistoryAddRemoveTest() {
+    public void AddToHistoryAddRemoveTest() {
         TestManager.removeAllTasks();
         TestManager.historyManager.clear();
         task1.setStartTime("00:00 12.12.2011");
@@ -85,14 +96,14 @@ public class TaskManagerUnitTesting {
 
 
     @Test
-    public void TaskPriorityListGetterCheck() throws IOException, NotEpicTaskException {
+    public void GetTaskPriorityTest() throws IOException, NotEpicTaskException {
 
 
         task1.setStartTime("00:00 12.12.2009");
         sub1.setStartTime("00:00 12.12.2011");
         sub2.setStartTime("00:00 12.12.2010");
         Assert.assertTrue(task1.getStartTime().isBefore(epic1.getStartTime()));
-        TestManager.getTasksList().clear();
+        TestManager.removeAllTasks();
         task1.setStartTime("00:00 12.12.2009");
         TestManager.setNewTask(task1);
         task2.setStartTime("00:00 12.12.2010");
@@ -112,7 +123,8 @@ public class TaskManagerUnitTesting {
     }
 
     @Test
-    public void TasksStatusSwitchTests() throws NotEpicTaskException {
+    public void TasksStatusGetAndSwitchTests() throws NotEpicTaskException {
+        TestManager.removeAllTasks();
         task1.setStartTime("00:00 12.12.2011");
         epic1.setStartTime("00:00 12.12.2012");
         sub1.setStartTime("00:00 12.12.2014");
@@ -127,6 +139,7 @@ public class TaskManagerUnitTesting {
         TestManager.setNewSubTask(sub3, epic2.getId());
         task1.setStatus(Status.IN_PROGRESS);
         Assert.assertEquals(Status.IN_PROGRESS, task1.getStatus());
+        Assert.assertEquals(Status.IN_PROGRESS, TestManager.getTaskStatus(task1.getId()));
         Assert.assertEquals(Status.NEW, epic1.getStatus());
         Assert.assertEquals(Status.NEW, epic2.getStatus());
         sub1.setStatus(Status.IN_PROGRESS);
@@ -137,14 +150,14 @@ public class TaskManagerUnitTesting {
         Assert.assertEquals(Status.IN_PROGRESS, epic2.getStatus());
         sub2.setStatus(Status.DONE);
         Assert.assertEquals(Status.IN_PROGRESS, epic2.getStatus());
-        sub3.setStatus(Status.DONE);
+        TestManager.setNewTaskStatus(sub3.getId(), Status.DONE);
         Assert.assertEquals(Status.DONE, epic2.getStatus());
     }
 
     @Test
     public void TaskCrossErrorTest() throws IOException {
 
-        TestManager.getTasksList().clear();
+        TestManager.removeAllTasks();
         task1.setStartTime("00:00 12.12.2009");
         task2.setStartTime(task1.getStartTime().format(Task.timeFormat));
         TestManager.setNewTask(task1);
@@ -156,7 +169,7 @@ public class TaskManagerUnitTesting {
     }
 
     @Test
-    public void FileManagerCreateAndSaveTest() {
+    public void CreateAndSaveFileManagerTest() {
 
         try {
             FileBackedTasksManager TestFileManager =
@@ -171,12 +184,10 @@ public class TaskManagerUnitTesting {
 
 
     @Test
-    public void FileCreateAddAndSaveTest() {
-
+    public void LoadFromFileAddAndSaveTest() {
 
         try
         {
-
             FileBackedTasksManager TestFileManager =
                     new FileBackedTasksManager(new File("C:\\Users\\Sebatian Piererro\\FirstHomework\\third\\java-kanban\\data", "ManagerHistory.txt")); //файл не пуст при первом запуске
             Task testTask = new Task("Обычный таск", String.format("Должен попасть в cохранение под номером %d", TestFileManager.getLastID()+1), Status.NEW, 60);

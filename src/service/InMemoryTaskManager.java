@@ -103,14 +103,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void checkForTaskConnectionsToDelete(int taskId) //метод для корректной очистки в случае удаления эпик или саб таска
     {
-        if (tasksMap.get(taskId) instanceof EpicTask) {
-            for (Task task : tasksMap.values()) {
-                for (SubTask sub : ((EpicTask) tasksMap.get(taskId)).getSubtasksMap().values()) {
-                    if (task.equals(sub)) tasksMap.remove(sub.getId());
-                }
+        if (tasksMap.get(taskId) instanceof EpicTask) { //удаляем всех сабов эпика из общей мапы Тасков
+            for (SubTask sub : ((EpicTask) tasksMap.get(taskId)).getSubtasksMap().values()) {
+                    tasksMap.remove(sub.getId());
             }
-        } else if (tasksMap.get(taskId) instanceof SubTask)
-            ((EpicTask) tasksMap.get((((SubTask) tasksMap.get(taskId)).getParentId()))).getSubtasksMap().remove(taskId);// Здесь удаляем сабтакс из эпика
+        } else if (tasksMap.get(taskId) instanceof SubTask) // Здесь удаляем сабтакс из эпика
+         removeFromSubList(((SubTask) getTaskByID(taskId)).getParentId(), taskId);
 
     }
 
@@ -119,7 +117,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public HashMap<Integer, Task> getTasksList() {
-        return tasksMap;
+        HashMap<Integer, Task> copy =new HashMap<Integer, Task>(tasksMap);
+        return copy;
     }
 
     @Override
