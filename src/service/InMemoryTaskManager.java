@@ -1,11 +1,16 @@
 package service;
 
+import Exceptions.NotEpicTaskException;
+import Exceptions.SubAlreadyInSubListException;
+import Exceptions.TimeCrossException;
 import model.Status;
 import model.SubTask;
 import model.Task;
 import model.EpicTask;
 
-import java.util.HashMap;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -24,12 +29,6 @@ public class InMemoryTaskManager implements TaskManager {
         IdCount = 0;
     }
 
-    public static String printSubs(int EpicID) {
-        String line = "";
-        for (SubTask sub : ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().values())
-            line += "\n" + sub.toString();
-        return line;
-    }
 
     public static void updateEpicStatus(int EpicID) {
         int statusDone = 0;
@@ -44,6 +43,28 @@ public class InMemoryTaskManager implements TaskManager {
             tasksMap.get(EpicID).setStatus(Status.NEW);
         } else {
             tasksMap.get(EpicID).setStatus(Status.IN_PROGRESS);
+        }
+    }
+
+
+
+    @Override
+    public void addTask(int id, Task newTask) throws IOException, TimeCrossException {
+        try{
+            //фильтр стрима по типу таска и по пересечению времени
+            Optional<Task> problem= getPrioritizedTasks().stream().filter(task -> task.getClass().getName().equals(newTask.getClass().getName())).filter(task -> {
+            return (!((task.getStartTime().isAfter(newTask.getEndTime()) || newTask.getStartTime().isAfter(task.getEndTime()))));
+       }).findFirst();
+            if(problem.isEmpty())
+        tasksMap.put(id, newTask);
+            else throw new TimeCrossException(Integer.toString(problem.get().getId()));
+    }
+        catch (Exception e)
+        {
+            if (e.getMessage().equals("Список Task-ов пуст"))
+                tasksMap.put(id, newTask);
+            else
+            System.out.println(e.getMessage());
         }
     }
 
@@ -66,12 +87,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllTasks() {
+        for(Task task: tasksMap.values())
+            if (task instanceof EpicTask)
+                ((EpicTask) task).clearSubList();
         tasksMap.clear();
     }
 
     @Override
-    public void addToSubList(int EpicID, SubTask sub) {
-        ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().put(sub.getId(), sub);
+    public void addToSubList(int EpicID, SubTask sub) throws SubAlreadyInSubListException {
+        if ( !((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().containsKey(sub.getId())) {
+            ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().put(sub.getId(), sub);
+            ((EpicTask) tasksMap.get(EpicID)).updateStartEndMomentsOfSubList();
+        }
+        else throw new SubAlreadyInSubListException(sub.getId(), EpicID);
     }
 
     @Override
@@ -82,21 +110,22 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void checkForTaskConnectionsToDelete(int taskId) //метод для корректной очистки в случае удаления эпик или саб таска
     {
-        if (tasksMap.get(taskId) instanceof EpicTask) {
-            for (Task task : tasksMap.values()) {
-                for (SubTask sub : ((EpicTask) tasksMap.get(taskId)).getSubtasksMap().values()) {
-                    if (task.equals(sub)) tasksMap.remove(sub.getId());
-                }
+        if (tasksMap.get(taskId) instanceof EpicTask) { //удаляем всех сабов эпика из общей мапы Тасков
+            for (SubTask sub : ((EpicTask) tasksMap.get(taskId)).getSubtasksMap().values()) {
+                    tasksMap.remove(sub.getId());
             }
-        } else if (tasksMap.get(taskId) instanceof SubTask)
-            ((EpicTask) tasksMap.get((((SubTask) tasksMap.get(taskId)).getParentId()))).getSubtasksMap().remove(taskId);// Здесь удаляем сабтакс из эпика
+        } else if (tasksMap.get(taskId) instanceof SubTask) // Здесь удаляем сабтакс из эпика
+         removeFromSubList(((SubTask) getTaskByID(taskId)).getParentId(), taskId);
 
     }
+
+
     ///////////////////////////////////////////////////////////////////////////////GET METHODS GROUP
 
     @Override
     public HashMap<Integer, Task> getTasksList() {
-        return tasksMap;
+        HashMap<Integer, Task> copy =new HashMap<Integer, Task>(tasksMap);
+        return copy;
     }
 
     @Override
@@ -117,6 +146,26 @@ public class InMemoryTaskManager implements TaskManager {
         return tasksMap.get(taskID);
     }
 
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() throws IOException {
+        if (tasksMap.isEmpty())
+            throw new IOException("Список Task-ов пуст");
+        else{
+            TreeSet<Task> prioritizedTasksList = new TreeSet<>((task1, task2) -> {
+                if (task1.getStartTime().isAfter(task2.getStartTime()))
+                {
+                    return 1;
+                }
+                else {
+                    return -1;
+                }
+            });
+            prioritizedTasksList.addAll(tasksMap.values());
+            return prioritizedTasksList;
+            }
+
+    }
+
     ///////////////////////////////////////////////////////////////////////////////SET METHODS GROUP
     @Override
     public void setNewTaskStatus(int taskId, Status status) {
@@ -128,7 +177,13 @@ public class InMemoryTaskManager implements TaskManager {
     {
         int id = getNewID();
         newTask.setId(id);
-        tasksMap.put(id, newTask);
+        try {
+            addTask(id, newTask);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Ошибка при добавлении Task-а типа "+newTask.getClass().getSimpleName()+"\n"+e.getMessage());
+        }
     }
 
     @Override
@@ -136,20 +191,34 @@ public class InMemoryTaskManager implements TaskManager {
     {
         int id = getNewID();
         newEpicTask.setId(id);
-        tasksMap.put(id, newEpicTask);
+        try {
+        addTask(id, newEpicTask);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Ошибка при добавлении Task-а типа "+newEpicTask.getClass().getSimpleName()+"\n"+e.getMessage());
+        }
     }
 
     @Override
-    public void setNewSubTask(SubTask newSubTask, int parentID)//добавление нового саб Таска
+    public void setNewSubTask(SubTask newSubTask, int parentID) throws NotEpicTaskException//добавление нового саб Таска
     {
         if (tasksMap.get(parentID) instanceof EpicTask) {
             int id = getNewID();
             newSubTask.setId(id);
             newSubTask.setParentId(parentID);
-            tasksMap.put(id, newSubTask);
-            addToSubList(parentID, newSubTask);
+            ((EpicTask) tasksMap.get(parentID)).updateStartEndMomentsOfSubList();
+            try {
+                addTask(id, newSubTask);
+                addToSubList(parentID, newSubTask);
+            }
+            catch (Exception e)
+            {
+                System.out.println("Ошибка при добавлении Task-а типа "+newSubTask.getClass().getSimpleName()+"\n"+e.getMessage());
+            }
             //приводим элемент мапы взятый по parentID
             // к типу EpicTask т.е от него ожидается что он будет Эпиком
-        } else System.out.println("Передан не верный тип родителя, ожидался EpicTask или родитель не объявлен");
+        } else throw new NotEpicTaskException();
     }
+
 }

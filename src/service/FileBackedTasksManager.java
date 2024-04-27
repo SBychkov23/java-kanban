@@ -5,14 +5,15 @@ import Exceptions.*;
 import java.nio.charset.*;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.nio.file.*;
-public class FileBackedTasksManager extends InMemoryTaskManager{
 
-    private static final String TITTLE_LINE = "id,type,name,status,description,epic";
+public class FileBackedTasksManager extends InMemoryTaskManager {
+
+    private static final String TITTLE_LINE = "id,type,name,status,description,start time, duration, epic";
 
     private File TaskManagerFile; ;
     public FileBackedTasksManager(File DataFile) throws IOException {
@@ -34,23 +35,28 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
                 String TaskLine = TasksFromFile.get(i);
                 String[] tasksAttributes = TaskLine.split(",");
                 try {
-                    switch (tasksAttributes[1])//id,type,name,status,description,epic
+                    switch (tasksAttributes[1])//id,type,name,status,description, start time, duration, epicID
                     {
                         case ("SubTask"):
-                            setNewSubTask(new SubTask(tasksAttributes[2], tasksAttributes[4], Status.valueOf(tasksAttributes[3])),
+                            setNewSubTask(new SubTask(tasksAttributes[2], tasksAttributes[4], Status.valueOf(tasksAttributes[3]), Integer.parseInt(tasksAttributes[6])),
                                     Integer.parseInt(tasksAttributes[0]),
-                                            Integer.parseInt(tasksAttributes[5]));
+                                            Integer.parseInt(tasksAttributes[7]), tasksAttributes[5]);
+                            updateLastID(Integer.parseInt(tasksAttributes[0]));
                             break;
                         case ("Task"):
-                            setNewTask(new Task(tasksAttributes[2], tasksAttributes[4], Status.valueOf(tasksAttributes[3])), Integer.parseInt(tasksAttributes[0]));
+                            setNewTask(new Task(tasksAttributes[2], tasksAttributes[4], Status.valueOf(tasksAttributes[3]), Integer.parseInt(tasksAttributes[6])),
+                                    Integer.parseInt(tasksAttributes[0]), tasksAttributes[5]);
+                            updateLastID(Integer.parseInt(tasksAttributes[0]));
                             break;
                         case ("EpicTask"):
-                            setNewEpicTask(new EpicTask(tasksAttributes[2], tasksAttributes[4], Status.valueOf(tasksAttributes[3])), Integer.parseInt(tasksAttributes[0]));
-
+                            setNewEpicTask(new EpicTask(tasksAttributes[2], tasksAttributes[4], Status.valueOf(tasksAttributes[3])), Integer.parseInt(tasksAttributes[0]),
+                                    tasksAttributes[5],Integer.parseInt(tasksAttributes[6]));
+                            updateLastID(Integer.parseInt(tasksAttributes[0]));
                     }
                 } catch (Exception e) {
                     System.out.println("Записи не обнаружены или нарушен формат записи: "+e.getMessage());
                 }
+
 
             }
         }
@@ -105,28 +111,53 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
     }
 
 
-    public void setNewTask(Task newTask, int memoryOwnID ) {
-        updateLastID(memoryOwnID);
+    public void setNewTask(Task newTask, int memoryOwnID, String startTime ) {
+
         newTask.setId(memoryOwnID);
-        tasksMap.put(memoryOwnID, newTask);
+        newTask.setStartTime(startTime);
+        try{
+            updateLastID(memoryOwnID);
+            addTask(memoryOwnID, newTask);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Ошибка при добавлении Task-а типа "+newTask.getClass().getSimpleName()+"\n"+e.getMessage());
+        }
     }
 
 
-    public void setNewEpicTask(EpicTask newEpicTask, int memoryOwnID) {
-        updateLastID(memoryOwnID);
+    public void setNewEpicTask(EpicTask newEpicTask, int memoryOwnID, String startTime, int duration) {
+
         newEpicTask.setId(memoryOwnID);
-        tasksMap.put(memoryOwnID, newEpicTask);
+        newEpicTask.setStartEndDurationTime(startTime, duration);
+        try{
+            updateLastID(memoryOwnID);
+            addTask(memoryOwnID, newEpicTask);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Ошибка при добавлении Task-а типа "+newEpicTask.getClass().getSimpleName()+"\n"+e.getMessage());
+        }
     }
 
 
-    public void setNewSubTask(SubTask newSubTask, int memoryOwnID, int memoryParentID ) throws ParentTaskMissingException {
+    public void setNewSubTask(SubTask newSubTask, int memoryOwnID, int memoryParentID, String startTime) throws ParentTaskMissingException {
     try {
         if (tasksMap.get(memoryParentID) instanceof EpicTask) {
-            updateLastID(memoryOwnID);
+
             newSubTask.setId(memoryOwnID);
             newSubTask.setParentId(memoryParentID);
-            tasksMap.put(memoryOwnID, newSubTask);
-            addToSubList(memoryParentID, newSubTask);
+            newSubTask.setStartTime(startTime);
+            try {
+                addTask(memoryOwnID, newSubTask);
+                addToSubList(memoryParentID, newSubTask);
+                updateLastID(memoryOwnID);
+            }
+
+                catch (Exception e) {
+                System.out.println("Ошибка при добавлении Task-а типа "+newSubTask.getClass().getSimpleName()+"\n"+e.getMessage());
+            }
+
             //приводим элемент мапы взятый по memoryParentID
             // к типу EpicTask т.е от него ожидается что он будет Эпиком
         } else {
@@ -139,5 +170,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         }
 
     }
+
 }
 
