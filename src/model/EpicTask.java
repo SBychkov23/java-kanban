@@ -93,6 +93,11 @@ public class EpicTask extends Task {
         return Objects.hash(super.hashCode(), childSubTasks);
     }
 
+    public void clearSubList()
+    {
+        childSubTasks.clear();
+    }
+
     public HashMap<Integer, SubTask> getSubtasksMap () {
         return childSubTasks;
     }

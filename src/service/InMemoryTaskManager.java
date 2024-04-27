@@ -1,6 +1,7 @@
 package service;
 
 import Exceptions.NotEpicTaskException;
+import Exceptions.SubAlreadyInSubListException;
 import Exceptions.TimeCrossException;
 import model.Status;
 import model.SubTask;
@@ -86,13 +87,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllTasks() {
+        for(Task task: tasksMap.values())
+            if (task instanceof EpicTask)
+                ((EpicTask) task).clearSubList();
         tasksMap.clear();
     }
 
     @Override
-    public void addToSubList(int EpicID, SubTask sub) {
-        ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().put(sub.getId(), sub);
-        ((EpicTask) tasksMap.get(EpicID)).updateStartEndMomentsOfSubList();
+    public void addToSubList(int EpicID, SubTask sub) throws SubAlreadyInSubListException {
+        if ( !((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().containsKey(sub.getId())) {
+            ((EpicTask) tasksMap.get(EpicID)).getSubtasksMap().put(sub.getId(), sub);
+            ((EpicTask) tasksMap.get(EpicID)).updateStartEndMomentsOfSubList();
+        }
+        else throw new SubAlreadyInSubListException(sub.getId(), EpicID);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package service;
 
 import Exceptions.NotEpicTaskException;
+import Exceptions.SubAlreadyInSubListException;
 import Exceptions.TimeCrossException;
 import model.EpicTask;
 import model.Status;
@@ -21,7 +22,7 @@ public interface TaskManager {
 
     public void removeAllTasks() ;
 
-    public void addToSubList(int EpicID, SubTask sub) ;
+    public void addToSubList(int EpicID, SubTask sub) throws SubAlreadyInSubListException;
 
     public void removeFromSubList(int EpicID, int SubID) ;
 
