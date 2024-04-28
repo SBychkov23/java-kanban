@@ -3,12 +3,14 @@ package service;
 import Exceptions.NotEpicTaskException;
 import Exceptions.SubAlreadyInSubListException;
 import Exceptions.TimeCrossException;
+import com.google.gson.Gson;
 import model.Status;
 import model.SubTask;
 import model.Task;
 import model.EpicTask;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -91,6 +93,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (task instanceof EpicTask)
                 ((EpicTask) task).clearSubList();
         tasksMap.clear();
+        IdCount=0;
     }
 
     @Override
@@ -166,10 +169,32 @@ public class InMemoryTaskManager implements TaskManager {
 
     }
 
+    @Override
+    public ArrayList<Task> getSpecifiedByTypeTaskList(Type t) {
+        List<Task> taskList = getTasksList().values().stream().filter(task -> task.getClass().equals(t)).collect(Collectors.toList());
+        return(ArrayList<Task>) taskList;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////SET METHODS GROUP
     @Override
     public void setNewTaskStatus(int taskId, Status status) {
         tasksMap.get(taskId).setStatus(status);
+    }
+
+    @Override
+    public void setNewTaskOfType(Type t, String body) throws TimeCrossException, IOException {
+        Gson j = new Gson();
+        Task task = j.fromJson(body, t);
+        int id;
+        try {
+            id = task.getId();
+            removeTaskByID(id);
+        }
+        catch (NullPointerException e)
+        {
+            id = getNewID();
+        }
+        addTask(id, task);
     }
 
     @Override

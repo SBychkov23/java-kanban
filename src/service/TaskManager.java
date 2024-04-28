@@ -9,15 +9,22 @@ import model.SubTask;
 import model.Task;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeSet;
 
 public interface TaskManager {
 
     public HashMap<Integer, Task> getTasksList();
 
+    public ArrayList<Task> getSpecifiedByTypeTaskList(Type t);
+
     void addTask (int id, Task newTask) throws IOException, TimeCrossException;
     public void removeTaskByID(int taskId) ;
+
+     void setNewTaskOfType(Type t, String body) throws TimeCrossException, IOException;
 
 
     public void removeAllTasks() ;

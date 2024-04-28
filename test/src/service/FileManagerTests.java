@@ -37,12 +37,16 @@ public class FileManagerTests extends TasksModeleTests {
         try
         {
             FileBackedTasksManager TestFileManager =
-                    new FileBackedTasksManager(new File("C:\\Users\\Sebatian Piererro\\FirstHomework\\third\\java-kanban\\data", "ManagerHistory.txt")); //файл не пуст при первом запуске
-            Task testTask = new Task("Обычный таск", String.format("Должен попасть в cохранение под номером %d", TestFileManager.getLastID()+1), Status.NEW, 60);
-            EpicTask testEpicTask = new EpicTask("Проверочный эпик",String.format("Должен попасть в cохранение под номером %d и статус InProgress ", TestFileManager.getLastID()+2),
+                    new FileBackedTasksManager(new File("C:\\Users\\Sebatian Piererro\\FirstHomework\\third\\java-kanban\\data", "ManagerHistory.txt"));
+            TestFileManager.removeAllTasks();
+            Task testTask = new Task("Обычный таск", String.format("Должен попасть в cохранение под номером %d", 1), Status.NEW, 60);
+            EpicTask testEpicTask = new EpicTask("Проверочный эпик",String.format("Должен попасть в cохранение под номером %d и статус InProgress ", 2),
                     Status.NEW);
             SubTask testSubTask1 = new SubTask("Проверочный саб",
-                    String.format("Должен попасть в cохранение под номером %d", TestFileManager.getLastID()+3),
+                    String.format("Должен попасть в cохранение под номером %d", 3),
+                    Status.NEW, 60);
+            SubTask testSubTask2 = new SubTask("Проверочный саб 2",
+                    String.format("Должен попасть в cохранение под номером %d", 4),
                     Status.NEW, 60);
             testTask.setStartTime("00:00 01.12.2013");
             testEpicTask.setStartTime("00:00 01.12.2014");
@@ -51,6 +55,7 @@ public class FileManagerTests extends TasksModeleTests {
             TestFileManager.setNewEpicTask(testEpicTask);
             TestFileManager.getTaskByID(testEpicTask.getId()).setStatus(Status.IN_PROGRESS);
             TestFileManager.setNewSubTask(testSubTask1, testEpicTask.getId());
+            TestFileManager.setNewSubTask(testSubTask2, testEpicTask.getId());
             Assert.assertThrows("Заданный таск не относится к типу Epic", NotEpicTaskException.class, ()-> TestFileManager.setNewSubTask(new SubTask("Проверочный саб",
                     new String("Не должен попасть в cохранение под номером" + TestFileManager.getLastID() + 4),
                     Status.NEW, 60), TestFileManager.getLastID()));
